@@ -97,33 +97,20 @@ def send_telegram_notification(message):
     response = requests.post(telegram_url, data=payload)
     return response.status_code == 200
 
-HIGH_THRESHOLD_BALANCE = 340.0 #set your highest threshold
+#calculate percentage
+def calculate_percentage_change(total_wallet, total_balance):
+    percentage_change = ((total_wallet - total_balance) / total_wallet) * 100
+    return percentage_change
 
-if total_balance > HIGH_THRESHOLD_BALANCE:
-            message = f"Total wallet balance is more than RM{HIGH_THRESHOLD_BALANCE}: RM{total_balance}"
-            send_notification = send_telegram_notification(message)
-            if send_notification:
-                print("Telegram notification sent successfully.")
-            else:
-                print("Failed to send Telegram notification.")
+total_wallet = 350
+percentage_change = calculate_percentage_change(total_wallet, total_balance)
 
-MEDIUM_THRESHOLD_BALANCE = 280.0 #set your medium threshold
-
-if total_balance < MEDIUM_THRESHOLD_BALANCE:
-            message = f"Total wallet balance is RM{total_balance}. You have lost 20% of your deposit!"
-            send_notification = send_telegram_notification(message)
-            if send_notification:
-                print("Telegram notification sent successfully.")
-            else:
-                print("Failed to send Telegram notification.")
-
-LOW_THRESHOLD_BALANCE = 200.0 #set your lowest threshold
-
-if total_balance < LOW_THRESHOLD_BALANCE:
-            message = f"Total wallet balance is less than RM{LOW_THRESHOLD_BALANCE}: RM{total_balance}"
-            send_notification = send_telegram_notification(message)
-            if send_notification:
-                print("Telegram notification sent successfully.")
-            else:
-                print("Failed to send Telegram notification.")
-
+if percentage_change > 0:
+    message = f"You have lost {abs(percentage_change):.2f}%. Wallet balance: RM{total_balance}"
+#    send_notification = send_telegram_notification(message)
+elif percentage_change < 0:
+    message = f"You have gained {abs(percentage_change):.2f}%. Wallet balance: RM{total_balance}"
+    send_notification = send_telegram_notification(message) #send only if gained
+else:
+    message = "There is no change."
+    send_notification = send_telegram_notification(message)
